@@ -13,7 +13,18 @@ jobs:
     permissions:
       contents: write
     name: BUILD ANDROID14-6.1-LTS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
+- name: Setting up the kernel compilation environment
+  run: |
+    sudo apt-get update
+    PKGS="bc bison build-essential ccache cpio curl dwarves flex g++-multilib gcc-multilib git gnupg gperf libc6-dev-i386 libelf-dev libncurses-dev libssl-dev libxml2-utils lz4 lzop pngcrush python3 rsync schedtool squashfs-tools unzip xsltproc xz-utils zip zlib1g-dev zstd"
+    OK=""
+    for p in $PKGS; do
+      if apt-cache show "$p" >/dev/null 2>&1; then OK="$OK $p"
+      else echo "::warning::paket $p tidak ada, dilewati"; fi
+    done
+    sudo apt-get install -y $OK
     if: github.event.repository.owner.id == github.event.sender.id
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
